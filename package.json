@@ -1,0 +1,7 @@
+{
+  "name": "creative-mum-chaos-store",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Custom storefront starter for Creative Mum Chaos",
+  "dependencies": { "stripe": "^17.7.0" }
+}
