@@ -42,12 +42,51 @@ const products=[
 {id:'plastic',name:'Plastic Tumbler',category:'Cups & Drinkware',price:16,icon:'💖',desc:'A fun everyday tumbler in your favourite colours.'},
 {id:'tee',name:'Custom T-shirt',category:'Wearables',price:25,icon:'👕',image:'products/Ghost%20face%20Black%20design.png',desc:'Pick a size, colour and design that feels like you.'},{id:'tote',name:'Personalised Tote Bag',category:'Accessories',price:18,icon:'👜',desc:'A practical carry-all with a personal touch.'},
 {id:'hat',name:'Trucker Hat',category:'Accessories',price:24,icon:'🧢',desc:'A colourful custom hat with your own style.'},
-{id:'stubby',name:'Stubby Cooler',category:'Accessories',price:10,icon:'🍹',images:['products/stubby%201.jpeg','products/stubby%202.jpeg','products/stubby%203.jpeg'],desc:'A little custom colour for parties, gifts and weekends.
-  '}
+{id:'stubby',name:'Stubby Cooler',category:'Accessories',price:10,icon:'🍹',images:['products/stubby%201.jpeg','products/stubby%202.jpeg','products/stubby%203.jpeg'],desc:'A little custom colour for parties, gifts and weekends.'}
   let cart=[];let currentProduct=null;const $=id=>document.getElementById(id);const money=n=>new Intl.NumberFormat('en-AU',{style:'currency',currency:'AUD'}).format(n);
 $('year').textContent=new Date().getFullYear();
-function renderProducts(){ $('product-grid').innerHTML=products.map(p=>`<article class="product"><div class="product-art">${p.image ? '<img src="' + p.image + '" alt="' + p.name + '" style="width:100%;height:175px;object-fit:contain;display:block;"' : p.icon}</div><div class="product-body"><h3>${p.name}</h3><p>${p.desc}</p><div class="price">From ${money(p.price)} AUD</div><button class="btn" data-custom="${p.id}">Customise this ↗</button></div></article>`).join('');document.querySelectorAll('[data-custom]').forEach(b=>b.addEventListener('click',()=>openCustom(b.dataset.custom)));}
-function openCustom(id){currentProduct=products.find(p=>p.id===id);$('custom-id').value=id;$('custom-title').textContent='Customise: '+currentProduct.name;$('size-wrap').classList.toggle('hidden',id!=='tee');$('custom-name').value='';$('custom-notes').value='';$('custom-art').value='';$('custom-modal').classList.add('open');}
+function renderProducts(){
+  $('product-grid').innerHTML=products.map(p=>{
+    const photos=p.images || (p.image ? [p.image] : []);
+    const gallery=photos.length
+      ? `<div class="product-art">
+          <img class="gallery-main" src="${photos[0]}" alt="${p.name}" style="width:100%;height:175px;object-fit:contain;display:block;">
+          ${photos.length>1 ? `<div style="display:flex;justify-content:center;gap:8px;padding:8px;">
+            ${photos.map((src,i)=>`<button type="button" data-photo="${i}" style="padding:3px;border:2px solid ${i===0?'#ff3f9b':'#393243'};border-radius:8px;background:#1b1925;cursor:pointer;">
+              <img src="${src}" alt="${p.name} photo ${i+1}" style="width:48px;height:48px;object-fit:contain;display:block;">
+            </button>`).join('')}
+          </div>` : ''}
+        </div>`
+      : `<div class="product-art">${p.icon}</div>`;
+
+    return `<article class="product">
+      ${gallery}
+      <div class="product-body">
+        <h3>${p.name}</h3>
+        <p>${p.desc}</p>
+        <div class="price">From ${money(p.price)} AUD</div>
+        <button class="btn" data-custom="${p.id}">Customise this ↗</button>
+      </div>
+    </article>`;
+  }).join('');
+
+  document.querySelectorAll('.product').forEach(card=>{
+    const main=card.querySelector('.gallery-main');
+    card.querySelectorAll('[data-photo]').forEach(button=>{
+      button.addEventListener('click',()=>{
+        if(!main)return;
+        main.src=button.querySelector('img').src;
+        card.querySelectorAll('[data-photo]').forEach(b=>b.style.borderColor='#393243');
+        button.style.borderColor='#ff3f9b';
+      });
+    });
+  });
+
+  document.querySelectorAll('[data-custom]').forEach(b=>{
+    b.addEventListener('click',()=>openCustom(b.dataset.custom));
+  });
+}
+  function openCustom(id){currentProduct=products.find(p=>p.id===id);$('custom-id').value=id;$('custom-title').textContent='Customise: '+currentProduct.name;$('size-wrap').classList.toggle('hidden',id!=='tee');$('custom-name').value='';$('custom-notes').value='';$('custom-art').value='';$('custom-modal').classList.add('open');}
 $('custom-close').onclick=()=>$('custom-modal').classList.remove('open');$('custom-form').addEventListener('submit',e=>{e.preventDefault();const p=products.find(x=>x.id===$('custom-id').value);cart.push({key:crypto.randomUUID(),id:p.id,name:p.name,price:p.price,custom:{wording:$('custom-name').value,colour:$('custom-colour').value,size:p.id==='tee'?$('custom-size').value:'',notes:$('custom-notes').value,file:$('custom-art').files[0]?.name||''}});$('custom-modal').classList.remove('open');renderCart();openCart();});
 function renderCart(){$('cart-count').textContent=cart.length;$('cart-lines').innerHTML=cart.length?cart.map((x,i)=>`<div class="cart-line"><div><strong>${x.name}</strong><small>${[x.custom.wording,x.custom.colour,x.custom.size,x.custom.notes].filter(Boolean).join(' · ')}</small><strong>${money(x.price)}</strong></div><button data-remove="${i}">Remove</button></div>`).join(''):'<p>Your bag is empty for now. Find something lovely in the shop.</p>';$('cart-total').textContent=money(cart.reduce((s,x)=>s+x.price,0));document.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{cart.splice(+b.dataset.remove,1);renderCart();});}
 function openCart(){$('drawer').classList.add('open');$('backdrop').classList.add('open')}function closeCart(){$('drawer').classList.remove('open');$('backdrop').classList.remove('open')}$('open-cart').onclick=openCart;$('close-cart').onclick=closeCart;$('backdrop').onclick=closeCart;
