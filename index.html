@@ -43,6 +43,7 @@ const products=[
 {id:'tee',name:'Custom T-shirt',category:'Wearables',price:25,icon:'👕',image:'products/Ghost%20face%20Black%20design.png',desc:'Pick a size, colour and design that feels like you.'},{id:'tote',name:'Personalised Tote Bag',category:'Accessories',price:18,icon:'👜',desc:'A practical carry-all with a personal touch.'},
 {id:'hat',name:'Trucker Hat',category:'Accessories',price:24,icon:'🧢',desc:'A colourful custom hat with your own style.'},
 {id:'stubby',name:'Stubby Cooler',category:'Accessories',price:10,icon:'🍹',images:['products/stubby%201.jpeg','products/stubby%202.jpeg','products/stubby%203.jpeg'],desc:'A little custom colour for parties, gifts and weekends.'}
+];
   let cart=[];let currentProduct=null;const $=id=>document.getElementById(id);const money=n=>new Intl.NumberFormat('en-AU',{style:'currency',currency:'AUD'}).format(n);
 $('year').textContent=new Date().getFullYear();
 function renderProducts(){
